@@ -21,19 +21,22 @@ import { Color } from "./color";
     <table>
       <tr>
         <td>Shots:</td>
-        <td>{{ stats.shots }}</td>
+        <td><div class="progress-circle" [title]="getProgress()"></div></td>
       </tr>
       <tr>
         <td>Hits:</td>
         <td>{{ stats.hits }}</td>
       </tr>
       <tr>
-        <td>Hurts:</td>
-        <td>{{ stats.hurt }}</td>
+        <td *ngIf="stats.hurt === 0">❤️❤️❤️</td>
+        <td *ngIf="stats.hurt === 1">❤️❤️🖤</td>
+        <td *ngIf="stats.hurt === 2">❤️🖤🖤</td>
+        <td *ngIf="stats.hurt === 3">🖤🖤🖤</td>
       </tr>
       <tr>
-        <td>Lost:</td>
-        <td>{{ stats.lost }}</td>
+        <td *ngIf="stats.lost === 1">💧</td>
+        <td *ngIf="stats.lost === 2">️💧💧</td>
+        <td *ngIf="stats.lost === 3">💧💧💧</td>
       </tr>
     </table>
   `,
@@ -216,5 +219,9 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     if (this.stats[stat] >= this.statsMax[stat]) {
       this.subscribtion.unsubscribe();
     }
+  }
+  getProgress() {
+    const perc = Math.round((100 / this.statsMax.shots) * this.stats.shots);
+    return `data-progress_${perc}`;
   }
 }
