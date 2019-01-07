@@ -127,8 +127,7 @@
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
             "tsConfig": "projects/karpatenhund/tsconfig.lib.json",
-            "project": "projects/karpatenhund/ng-package.json",
-            "assets": ["src/lib/mario.png"]
+            "project": "projects/karpatenhund/ng-package.json"
           }
         },
         "test": {

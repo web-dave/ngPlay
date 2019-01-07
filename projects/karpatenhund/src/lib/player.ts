@@ -26,8 +26,8 @@ export class Player {
     private size: number = 16
   ) {
     this.rect = new Block(
-      0,
-      0,
+      (this.canvas.width - this.size) / 2,
+      this.canvas.height - this.size * 2,
       size,
       size,
       this.ctx,

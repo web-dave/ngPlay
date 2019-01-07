@@ -211,7 +211,6 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
       this.ctx,
       new Color(0, 206, 209, 1)
     );
-    // b.color = new Color(0, 206, 209, 1);
     this.floor.push(b);
   }
   handleStats(stat: string) {
