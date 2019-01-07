@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { fromEvent, Observable, interval, Subscription } from "rxjs";
-import { last, bufferCount } from "rxjs/operators";
+import { bufferCount } from "rxjs/operators";
+import { Hammer } from "hammerjs";
 
 import { Block } from "./block";
 import { Player } from "./player";
@@ -63,6 +64,7 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
   ctx: CanvasRenderingContext2D;
   floor: Block[] = [];
   player: Player;
+  touch = { active: false, startX: 0, startY: 0, endX: 0, endY: 0 };
   pressedKeys = {
     ArrowLeft: false,
     ArrowRight: false,
@@ -86,6 +88,9 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
   $tick: Observable<number> = interval(10);
   $keyDown: Observable<KeyboardEvent>;
   $keyUp: Observable<KeyboardEvent>;
+  $touchStart: Observable<TouchEvent>;
+  $touchEnd: Observable<TouchEvent>;
+  $touchMove: Observable<TouchEvent>;
   subscribtion: Subscription;
 
   constructor() {}
@@ -100,7 +105,15 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.$keyUp = <Observable<KeyboardEvent>>(
       fromEvent(this.canvas.offsetParent, "keyup")
     );
-
+    this.$touchStart = <Observable<TouchEvent>>(
+      fromEvent(this.canvas.offsetParent, "touchstart")
+    );
+    this.$touchEnd = <Observable<TouchEvent>>(
+      fromEvent(this.canvas.offsetParent, "touchend")
+    );
+    this.$touchMove = <Observable<TouchEvent>>(
+      fromEvent(this.canvas.offsetParent, "touchmove")
+    );
     this.canvas.width = this.canvas.offsetParent.clientWidth;
     this.canvas.height = this.canvas.offsetParent.clientHeight;
     this.canvas.style.width = this.canvas.width + "px";
@@ -181,6 +194,19 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.subscribtion = this.$tick.subscribe(() => this.draw());
     this.subscribtion.add(this.$keyDown.subscribe(e => this.keyD(e.code)));
     this.subscribtion.add(this.$keyUp.subscribe(e => this.keyU(e.code)));
+    this.subscribtion.add(
+      this.$touchStart.subscribe(e =>
+        this.handleTouch(e.changedTouches[0], "touchstart")
+      )
+    );
+    this.subscribtion.add(
+      this.$touchEnd.subscribe(e =>
+        this.handleTouch(e.changedTouches[0], "touchend")
+      )
+    );
+    // this.subscribtion.add(
+    //   this.$touchMove.subscribe(e => console.log("move", e))
+    // );
 
     this.subscribtion.add(
       this.$tick.pipe(bufferCount(50)).subscribe(n => this.moveBlocks())
@@ -188,6 +214,33 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.subscribtion.add(
       this.$tick.pipe(bufferCount(150)).subscribe(n => this.createBlocks())
     );
+  }
+
+  handleTouch(e: Touch, evt: string) {
+    console.log(evt, e);
+    this.touch.active = evt === "touchstart";
+    if (evt === "touchstart") {
+      this.touch.startX = e.clientX;
+      this.touch.startY = e.clientY;
+    } else {
+      this.touch.endX = e.clientX;
+      this.touch.endY = e.clientY;
+      if (this.touch.startX - this.touch.endX <= -10) {
+        console.log("right", this.touch.startX - this.touch.endX);
+        this.keyD("ArrowRight");
+      } else if (this.touch.startX - this.touch.endX >= 10) {
+        console.log("left", this.touch.startX - this.touch.endX);
+        this.keyD("ArrowLeft");
+      } else {
+        console.log("tab", this.touch.startX - this.touch.endX);
+        this.keyD("Space");
+      }
+      setTimeout(() => {
+        this.keyU("Space");
+        this.keyU("ArrowLeft");
+        this.keyU("ArrowRight");
+      }, 150);
+    }
   }
   moveBlocks() {
     this.floor.forEach((e, i) => {
