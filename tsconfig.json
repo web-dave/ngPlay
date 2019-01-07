@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "karpatenhund": [
+        "dist/karpatenhund"
+      ],
+      "karpatenhund/*": [
+        "dist/karpatenhund/*"
+      ]
+    }
   }
 }
