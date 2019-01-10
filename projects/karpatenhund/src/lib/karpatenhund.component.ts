@@ -1,11 +1,16 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { fromEvent, Observable, interval, Subscription } from "rxjs";
 import { bufferCount } from "rxjs/operators";
-import { Hammer } from "hammerjs";
 
 import { Block } from "./block";
 import { Player } from "./player";
 import { Color } from "./color";
+
+export interface Orientation {
+  alpha: number;
+  beta: number;
+  gamma: number;
+}
 
 @Component({
   selector: "kph-karpatenhund",
@@ -35,9 +40,7 @@ import { Color } from "./color";
         <td *ngIf="stats.hurt === 3">🖤🖤🖤</td>
       </tr>
       <tr>
-        <td *ngIf="stats.lost === 1">💧</td>
-        <td *ngIf="stats.lost === 2">️💧💧</td>
-        <td *ngIf="stats.lost === 3">💧💧💧</td>
+        <td><span *ngFor="let d of stats.lost">💧</span></td>
       </tr>
     </table>
   `,
@@ -75,13 +78,13 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
   stats = {
     shots: 0,
     hits: 0,
-    lost: 0,
+    lost: [],
     hurt: 0
   };
   statsMax = {
-    shots: 200,
-    hits: 200,
-    lost: 3,
+    shots: 100,
+    hits: 100,
+    lost: 10,
     hurt: 3
   };
 
@@ -92,6 +95,8 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
   $touchEnd: Observable<TouchEvent>;
   $touchMove: Observable<TouchEvent>;
   subscribtion: Subscription;
+  $deviceorientation: Observable<any>;
+  orrCalibration: Orientation = null;
 
   constructor() {}
   ngOnInit() {}
@@ -118,6 +123,7 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.canvas.height = this.canvas.offsetParent.clientHeight;
     this.canvas.style.width = this.canvas.width + "px";
     this.canvas.style.height = this.canvas.height + "px";
+    this.$deviceorientation = fromEvent(window, "deviceorientation");
     this.initGame();
   }
 
@@ -194,6 +200,9 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.subscribtion = this.$tick.subscribe(() => this.draw());
     this.subscribtion.add(this.$keyDown.subscribe(e => this.keyD(e.code)));
     this.subscribtion.add(this.$keyUp.subscribe(e => this.keyU(e.code)));
+    // this.subscribtion.add(
+    //   this.$deviceorientation.subscribe(o => this.controlByOrientation(o))
+    // );
     this.subscribtion.add(
       this.$touchStart.subscribe(e =>
         this.handleTouch(e.changedTouches[0], "touchstart")
@@ -204,9 +213,9 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
         this.handleTouch(e.changedTouches[0], "touchend")
       )
     );
-    // this.subscribtion.add(
-    //   this.$touchMove.subscribe(e => console.log("move", e))
-    // );
+    this.subscribtion.add(
+      this.$touchMove.subscribe(e => console.log("move", e))
+    );
 
     this.subscribtion.add(
       this.$tick.pipe(bufferCount(50)).subscribe(n => this.moveBlocks())
@@ -214,6 +223,28 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.subscribtion.add(
       this.$tick.pipe(bufferCount(150)).subscribe(n => this.createBlocks())
     );
+  }
+
+  controlByOrientation(or: Orientation) {
+    if (this.orrCalibration === null) {
+      this.orrCalibration = {
+        alpha: Math.round(or.alpha),
+        beta: Math.round(or.beta),
+        gamma: Math.round(or.gamma)
+      };
+    } else {
+      if (Math.round(or.alpha) - this.orrCalibration.alpha <= -5) {
+        console.log("right", Math.round(or.alpha) - this.orrCalibration.alpha);
+        this.keyD("ArrowLeft");
+        this.keyU("ArrowRight");
+      }
+      if (Math.round(or.alpha) - this.orrCalibration.alpha >= 5) {
+        console.log("left", Math.round(or.alpha) - this.orrCalibration.alpha);
+        this.keyD("ArrowRight");
+        this.keyU("ArrowLeft");
+      }
+    }
+    console.log(this.orrCalibration.alpha, this.pressedKeys);
   }
 
   handleTouch(e: Touch, evt: string) {
@@ -248,7 +279,6 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
       if (i !== 0) {
         e.y = e.y + 10;
         if (e.Intersects(this.player.rect)) {
-          // console.error(e, "getroffen vom Block", ei);
           this.handleStats("hurt");
         }
       }
@@ -267,9 +297,16 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.floor.push(b);
   }
   handleStats(stat: string) {
-    this.stats[stat]++;
-    if (this.stats[stat] >= this.statsMax[stat]) {
-      this.subscribtion.unsubscribe();
+    if (stat !== "lost") {
+      this.stats[stat]++;
+      if (this.stats[stat] >= this.statsMax[stat]) {
+        this.subscribtion.unsubscribe();
+      }
+    } else {
+      this.stats.lost.push(0);
+      if (this.stats[stat].length >= this.statsMax[stat]) {
+        this.subscribtion.unsubscribe();
+      }
     }
   }
   getProgress() {
