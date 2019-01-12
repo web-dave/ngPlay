@@ -49,7 +49,7 @@ export class KarpatenhundService {
       10,
       10,
       ctx,
-      new Color(0, 206, 209, 1)
+      new Color("rgb", 0, 206, 209, 1)
     );
     floor.push(b);
   }

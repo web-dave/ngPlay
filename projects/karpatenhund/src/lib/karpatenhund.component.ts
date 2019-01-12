@@ -135,11 +135,11 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
       this.canvas.width,
       20,
       this.ctx,
-      new Color(0, 153, 51, 1)
+      new Color("rgb", 0, 153, 51, 1)
     );
     this.floor.push(b);
     // const b1 = new Block(820, 420, 120, 20, this.ctx);
-    // b1.color = new Color(0, 255, 0, 1);
+    // b1.color = new Color('rgb',0, 255, 0, 1);
     // this.floor.push(b1);
     this.start();
   }

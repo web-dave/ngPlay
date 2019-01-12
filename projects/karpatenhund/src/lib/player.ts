@@ -31,7 +31,7 @@ export class Player {
       size,
       size,
       this.ctx,
-      new Color(255, 0, 255, 1)
+      new Color("rgb", 255, 0, 255, 1)
     );
     // this.rect.color.r = 0;
     // this.rect.color.g = 0;

@@ -7,7 +7,7 @@ export class Block {
     public width: number,
     public height: number,
     private ctx: CanvasRenderingContext2D,
-    public color = new Color(),
+    public color = new Color("rgb"),
     public radius: number = null
   ) {}
 
