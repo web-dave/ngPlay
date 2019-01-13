@@ -1,3 +1,22 @@
-<!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">Geisterfahrer</div>
-<kph-karpatenhund></kph-karpatenhund>
+
+<kph-karpatenhund (go)="go($event)"></kph-karpatenhund>
+<table *ngIf="canvas" [style.top]="'-' + canvas.style.height">
+  <tr>
+    <td>Shots:</td>
+    <td><div class="progress-circle" [title]="progress"></div></td>
+  </tr>
+  <tr>
+    <td>Hits:</td>
+    <td>{{ stats.hits }}</td>
+  </tr>
+  <tr>
+    <td *ngIf="stats.hurt === 0">❤️❤️❤️</td>
+    <td *ngIf="stats.hurt === 1">❤️❤️🖤</td>
+    <td *ngIf="stats.hurt === 2">❤️🖤🖤</td>
+    <td *ngIf="stats.hurt === 3">🖤🖤🖤</td>
+  </tr>
+  <tr>
+    <td><span *ngFor="let d of stats.lost">💧</span></td>
+  </tr>
+</table>

@@ -123,13 +123,12 @@ export class Player {
         this.rect.y + this.rect.height / 2 - 4,
         8,
         8,
-        this.ctx
+        this.ctx,
+        new Color("rgb", 255, 0, 0, 1)
       );
-      b.color.g = 0;
-      b.color.b = 0;
 
       const vel = new Vector(0, 0);
-      vel.y = -3;
+      vel.x = this.lookinRight ? 3 : -3;
 
       const bul = new Bullet(vel, b);
 

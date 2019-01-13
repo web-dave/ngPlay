@@ -1,7 +1,15 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
-export { KarpatenhundModule } from "projects/karpatenhund/src/public_api";
+export {
+  KarpatenhundModule,
+  Animation,
+  Block,
+  Bullet,
+  Color,
+  Player,
+  Vector
+} from "projects/karpatenhund/src/public_api";
 export const environment = {
   production: false
 };
