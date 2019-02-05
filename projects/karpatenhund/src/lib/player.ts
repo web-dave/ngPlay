@@ -8,6 +8,7 @@ export class Player {
   animation: Animation;
   rect: Block;
   gravity = 1;
+  previousX: number;
 
   moving = false;
 
@@ -25,6 +26,7 @@ export class Player {
     private ctx: CanvasRenderingContext2D,
     private size: number = 16
   ) {
+    this.previousX = (this.canvas.width - this.size) / 2;
     this.rect = new Block(
       (this.canvas.width - this.size) / 2,
       this.canvas.height - this.size * 2,
@@ -33,13 +35,12 @@ export class Player {
       this.ctx,
       new Color("rgb", 255, 0, 255, 1)
     );
-    // this.rect.color.r = 0;
-    // this.rect.color.g = 0;
 
     // this.animation = new Animation(size, size, 0, 0, imgSrc, 12, 4, this.ctx);
   }
 
   SetPosition(x: number, y: number, mod = false) {
+    this.previousX = this.rect.x;
     if (!mod) {
       if (x != null) {
         this.rect.x = x;
@@ -63,56 +64,65 @@ export class Player {
     ArrowUp: boolean;
     Space: boolean;
   }) {
-    this.moving = false;
-
-    if (input.ArrowLeft) {
-      // this.animation.SetRow(2);
-      this.rect.x -= 1;
-      if (this.rect.x <= 0) {
-        this.rect.x = 0;
-      }
-      this.moving = true;
-      this.lookinRight = false;
-    }
-    if (input.ArrowRight) {
-      // this.animation.SetRow(0);
-      this.rect.x += 1;
-      if (this.rect.x >= this.canvas.width - this.size) {
-        this.rect.x = this.canvas.width - this.size;
-      }
-      this.moving = true;
-      this.lookinRight = true;
-    }
-    if (input.ArrowUp) {
-      this.Jump();
-    }
-
-    if (input.Space) {
-      this.Shoot();
+    if (
+      !input.ArrowLeft &&
+      !input.ArrowRight &&
+      !input.ArrowUp &&
+      !input.Space
+    ) {
+      this.moving = false;
     } else {
-      this.shotBullet = false;
-    }
-
-    this.UpdateBullets();
-
-    if (this.jumping) {
-      this.rect.y -= this.jumpVelocity;
-      this.jumpVelocity -= 0.02;
-
-      if (this.jumpVelocity <= 0) {
-        this.jumping = false;
-        this.jumpAvailable = true;
+      if (input.ArrowLeft) {
+        this.previousX = this.rect.x;
+        // this.animation.SetRow(2);
+        this.rect.x -= 1;
+        if (this.rect.x <= 0) {
+          this.rect.x = 0;
+        }
+        this.moving = true;
+        this.lookinRight = false;
       }
-    } else {
-      this.rect.y += this.gravity;
-    }
+      if (input.ArrowRight) {
+        this.previousX = this.rect.x;
+        // this.animation.SetRow(0);
+        this.rect.x += 1;
+        if (this.rect.x >= this.canvas.width - this.size) {
+          this.rect.x = this.canvas.width - this.size;
+        }
+        this.moving = true;
+        this.lookinRight = true;
+      }
+      if (input.ArrowUp) {
+        this.Jump();
+      }
 
-    // this.animation.position.Set(this.rect.x, this.rect.y);
+      if (input.Space) {
+        this.Shoot();
+      } else {
+        this.shotBullet = false;
+      }
 
-    if (this.moving) {
-      // this.animation.Update();
-    } else {
-      // this.animation.SetColumn(0);
+      this.UpdateBullets();
+
+      if (this.jumping) {
+        this.rect.y -= this.jumpVelocity;
+        this.jumpVelocity -= 0.02;
+
+        if (this.jumpVelocity <= 0) {
+          this.jumping = false;
+          this.jumpAvailable = true;
+        }
+      } else {
+        this.rect.y += this.gravity;
+      }
+
+      // this.animation.position.Set(this.rect.x, this.rect.y);
+
+      if (this.moving) {
+        // this.animation.Update();
+      } else {
+        // this.animation.SetColumn(0);
+      }
     }
   }
 
