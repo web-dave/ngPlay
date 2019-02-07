@@ -27,11 +27,11 @@ export interface Orientation {
       (keydown)="keyD($event)"
       (keyup)="keyU($event)"
       id="canvas"
-      [width]="width"
-      [height]="height"
-      style="border: 1px solid black;"
+      width="800"
+      height="600"
+      style="border: 1px solid black; width: 800px; height: 600px;"
     ></canvas>
-    <table [style.top]="'-' + canvas.style.height">
+    <table [style.top]="-600">
       <tr>
         <td>Shots:</td>
         <td><div class="progress-circle" [title]="progress"></div></td>
