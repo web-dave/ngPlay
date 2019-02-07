@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy
+} from "@angular/core";
 import { Observable, interval, Subscription } from "rxjs";
 import { bufferCount } from "rxjs/operators";
 
@@ -65,7 +71,7 @@ export interface Orientation {
     `
   ]
 })
-export class KarpatenhundComponent implements OnInit, AfterViewInit {
+export class KarpatenhundComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("canvas") _canvas;
   canvas: HTMLCanvasElement;
   width = 1000;
@@ -94,13 +100,7 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     lost: 10,
     hurt: 3
   };
-  events: string[] = [
-    "keydown",
-    "keyup",
-    "touchstart",
-    "touchend",
-    "touchmove"
-  ];
+  events: string[] = ["keydown", "keyup"];
   obsArr: Observable<any>[] = [];
   $tick: Observable<number> = interval(10);
   $keyDown: Observable<KeyboardEvent>;
@@ -145,6 +145,7 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
   }
 
   draw() {
+    console.log("draw");
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.floor.forEach(e => e.Draw());
     this.player.Update(this.pressedKeys);
@@ -239,39 +240,9 @@ export class KarpatenhundComponent implements OnInit, AfterViewInit {
     this.fps(<Observable<number>>this.obsArr[0]);
     this.subscription.add(this.obsArr[1].subscribe(e => this.keyD(e.code)));
     this.subscription.add(this.obsArr[2].subscribe(e => this.keyU(e.code)));
-
-    this.subscription.add(
-      this.obsArr[3].subscribe(e =>
-        this.handleTouch(e.changedTouches[0], "touchstart")
-      )
-    );
-    this.subscription.add(
-      this.obsArr[4].subscribe(e =>
-        this.handleTouch(e.changedTouches[0], "touchend")
-      )
-    );
   }
 
-  handleTouch(e: Touch, evt: string) {
-    this.touch.active = evt === "touchstart";
-    if (evt === "touchstart") {
-      this.touch.startX = e.clientX;
-      this.touch.startY = e.clientY;
-    } else {
-      this.touch.endX = e.clientX;
-      this.touch.endY = e.clientY;
-      if (this.touch.startX - this.touch.endX <= -10) {
-        this.keyD("ArrowRight");
-      } else if (this.touch.startX - this.touch.endX >= 10) {
-        this.keyD("ArrowLeft");
-      } else {
-        this.keyD("Space");
-      }
-      setTimeout(() => {
-        this.keyU("Space");
-        this.keyU("ArrowLeft");
-        this.keyU("ArrowRight");
-      }, 150);
-    }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }
